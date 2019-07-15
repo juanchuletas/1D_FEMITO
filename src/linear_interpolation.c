@@ -10,7 +10,7 @@ extern void SetElements(struct Element *e,struct Vertex *n,int Ne, double *x,int
 void LinearInterpolation(int Ne,double r0,double rN,char atPot[180],char mesh[180],int order)
 {
 
-	int matE = order + 1;
+	int eMatSize = (order + 1)*(order + 1);
 	double *s_mat,*x,*se_mat;
 
 	struct Element *e;
@@ -18,10 +18,7 @@ void LinearInterpolation(int Ne,double r0,double rN,char atPot[180],char mesh[18
 
         e = (struct Element *)malloc(sizeof(struct Element)*Ne);
 
-
-
 	x = (double *)malloc(sizeof(double)*(Ne+1));
-	s_matE = (double *)malloc(sizeof(double)*matE);
 
 	GenerateNodes(x,Ne,r0,rN,mesh);
 	SetElements(e,e->n,Ne,x,order);
@@ -38,8 +35,9 @@ void LinearInterpolation(int Ne,double r0,double rN,char atPot[180],char mesh[18
                 }
         }
 
-	/*s_mat = (double *)malloc(sizeof(double)*(Ne+1)*(Ne+1));
-	se_mat = (double)malloc(sizeof(double)*())*/
+	s_mat = (double *)malloc(sizeof(double)*((Ne+1)*(Ne+1)));
+	eMatS = (double *)malloc(sizeof(double)*(eMatSize));
+
 
 	//SetZeroMat(matS,M,N);	// FILL WITH 0.0 THE MATRIX S
 
