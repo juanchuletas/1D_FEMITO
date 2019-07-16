@@ -9,6 +9,7 @@ void EvaluatePotential(char pot[180],int nodes,double *x,double *v)
 		for(int i=0; i<nodes; i++)
 		{
 			v[i] = x[i]*x[i];
+			printf("V(%d) = %lf\n",i,v[i]);
 		}
 	}
 }

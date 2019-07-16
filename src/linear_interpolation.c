@@ -16,12 +16,12 @@ void LinearInterpolation(int Ne,double r0,double rN,char pot[180],char mesh[180]
 	int M,me,N,ne,nodes;
 	nodes = Ne+1;
 	me = (order+1);
-	me = (order+1);
+	ne = (order+1);
 	M = (Ne+1);
 	N = (Ne+1);
-	int eMatSize = ne*ne;
+	int eMatSize = ne*me;
 	double *s_mat,*k_mat,*h_mat,*v_mat,*eMatS;
-	double *eMatK,*eMatV,*x,*se_mat,*v;
+	double *eMatK,*eMatV,*x,*v;
 
 	struct Element *e;
 
