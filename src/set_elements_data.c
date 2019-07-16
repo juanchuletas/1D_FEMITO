@@ -2,9 +2,9 @@
 #include <stdlib.h>
 #include "data_structures.h"
 
-void SetElements(struct Element *e,struct Vertex *n,int Ne,double *x,int option)
+void SetElements(struct Element *e,struct Vertex *n,int Ne,double *x,int order)
 {
-	switch(option)
+	switch(order)
 	{
 		case 1:
 			for(int i=0; i<Ne; i++)
