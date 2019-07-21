@@ -4,15 +4,20 @@
 
 void SetElements(struct Element *e,struct Vertex *n,int Ne,double *x,int order)
 {
+	int p;
+	p=order+1;
 	switch(order)
 	{
 		case 1:
 			for(int i=0; i<Ne; i++)
 			{
 				e[i].n = (struct Vertex *)malloc(sizeof(struct Vertex)*2);	
-		       		e[i].n[0].x = x[i];
-		       		e[i].n[1].x = x[i+1];
-	       			e[i].h = e[i].n[1].x - e[i].n[0].x;
+				for(int j=0; j<order; j++)
+				{
+		       			e[i].n[j].x = x[i];
+		       			e[i].n[j+1].x = x[i+1];
+	       				e[i].h = e[i].n[j+1].x - e[i].n[j].x;
+				}
         		}
 	                break;
 		case 2:

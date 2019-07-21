@@ -1,20 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-extern void LinearInterpolation(int Ne,double r0,double rN,char atPot[180],char mesh[180],int order);
+extern void LagrangeInterpolation(int Ne,double r0,double rN,char atPot[180],char mesh[180],int order);
 void load_data(int Ne,double r0,double rN,char atPot[180],int order,char mesh[180])
 {
-
-
-	switch(order)
-	{
-		case 1:
-			LinearInterpolation(Ne,r0,rN,atPot,mesh,order);
-			break;
-		case 2:
-			//SecondGradeInterpolation(Ne,r0,rN,atPot);
-			break;
-	}
+	LagrangeInterpolation(Ne,r0,rN,atPot,mesh,order);
 }
 int main(int argc, char **argv)
 {
