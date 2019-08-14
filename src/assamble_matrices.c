@@ -63,6 +63,38 @@ void SecondGradePol(int Ne,int order,int *link_mat,double *s_mat,double *k_mat,d
 
 
 }
+void ThirdGradePol(int Ne,int order,int *link_mat,double *s_mat,double *k_mat,double *v_mat,double *eMatS,double *eMatK,double *eMatV,struct Element *e,struct Vertex *pot)
+{
+        int p,l,m;
+	int nodes=(order*Ne) + 1;
+        double coeff;
+        p = order+1;
+	double vij[p];
+
+        for(int ei=0; ei<Ne; ei++)
+        {
+                coeff = 0.5*e[ei].h;
+		vij[0] = e[ei].pot[0].x;
+		vij[1] = e[ei].pot[1].x;
+		vij[2] = e[ei].pot[2].x;
+		vij[3] = e[ei].pot[3].x;
+                ThirdGradeElementalMatrices(ei,order,coeff,link_mat,eMatS,eMatK,eMatV,vij);
+                for(int nu=0; nu<p; nu++)
+                {
+                        l=link_mat[p*ei+nu];
+                        for(int mu=0; mu<p; mu++)
+                        {
+                                m=link_mat[p*ei+mu];
+                                s_mat[l*nodes+m] +=  eMatS[p*nu+mu];
+                                k_mat[l*nodes+m] +=  eMatK[p*nu+mu];
+                                v_mat[l*nodes+m] +=  eMatV[p*nu+mu];
+                                //printf("%d %d\n",l*nodos+m,p*nu+mu);
+                        }
+                }
+        }
+
+
+}
 void AssambleGlobalMatrices(int Ne,int order,int *link_mat,double *s_mat,double *k_mat,double *v_mat,double *v,struct Element *e,struct Vertex *pot)
 {
 	int p,l,m;
@@ -80,6 +112,9 @@ void AssambleGlobalMatrices(int Ne,int order,int *link_mat,double *s_mat,double 
 			break;
 		case 2: 
 			SecondGradePol(Ne,order,link_mat,s_mat,k_mat,v_mat,eMatS,eMatK,eMatV,e,e->pot);
+			break;
+		case 3:
+			ThirdGradePol(Ne,order,link_mat,s_mat,k_mat,v_mat,eMatS,eMatK,eMatV,e,e->pot);
 			break;
 	}
 

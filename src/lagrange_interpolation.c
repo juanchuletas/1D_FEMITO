@@ -3,10 +3,11 @@
 #include <string.h>
 #include "data_structures.h"
 #include <math.h>
-
-extern void GenerateNodes(double *x,int nodes,double r0,double rN,char mesh[180]);
-extern void SetElements(struct Element *e,struct Vertex *n,int Ne, double *x,int order,double *nt);
-extern void EvaluatePotential(char kindpot[180],int Ne,int order,struct Element *e,struct Vertex *n,struct Vertex *pot);
+extern void EnergyResults(double *eigenval,int N);
+extern void PrintPotentialData(int order,int Ne,struct Element *e,struct Vertex *n,struct Vertex *pot);
+extern void GenerateNodes(double *x,int nodes,double r0,double rN,char mesh[180],char atom[3]);
+extern void SetElements(struct Element *e,struct Vertex *n,int Ne, double *x,int order);
+extern void EvaluatePotential(char kindpot[180],char atom[3],int angular,int Ne,int order,struct Element *e,struct Vertex *n,struct Vertex *pot);
 extern void print_matrix( char* desc, int m, int n, double* a);
 extern void GetLinkMatrix(int *link_mat,int Ne,int order);
 extern void AssambleGlobalMatrices(int Ne,int order,int *link_mat,double *s_mat,double *k_mat,double *v_mat,double *v,struct Element *e,struct Vertex *pot);
@@ -15,7 +16,7 @@ extern void GetHmatrix(double *h,double *v,double *k,int M,int N);
 extern void diag (int n, double *h, double *s, double *e, double *v);
 extern void ReduceMatrices(double *sij,double *kij,double *vij,double *s_mat,double *k_mat,double *v_mat,int nodes);
 
-void LagrangeInterpolation(int Ne,double r0,double rN,char kindpot[180],char mesh[180],int order)
+void LagrangeInterpolation(int Ne,double r0,double rN,char kindpot[180],char mesh[180],char atom[3],int order,int angular)
 {
 
 	int M,me,N,ne,nodes,p;
@@ -27,7 +28,7 @@ void LagrangeInterpolation(int Ne,double r0,double rN,char kindpot[180],char mes
 	N = (Ne+1);
 	int eMatSize = ne*me;
 	double *s_mat,*k_mat,*v_mat,*ei,*ci;
-	double *x,*v,*nt;
+	double *x,*v;
 	int *link_mat;
 	struct Element *e;
 
@@ -40,7 +41,6 @@ void LagrangeInterpolation(int Ne,double r0,double rN,char kindpot[180],char mes
 	//***************** Nodes in x ****************************************
 	x = (double *)malloc(sizeof(double)*(Ne+1));
 	//***************** Potential ******************************************
-	nt = (double *)malloc(sizeof(double)*(nodes));
 	v = (double *)malloc(sizeof(double)*(nodes));
 	//***************** Link Matrix ****************************************
 	link_mat = (int *)malloc(sizeof(int)*(Ne*(order+1)));
@@ -76,8 +76,8 @@ void LagrangeInterpolation(int Ne,double r0,double rN,char kindpot[180],char mes
 
 
 	//------------ GENERATION OF NODES AND ELEMENTS------------------------
-	GenerateNodes(x,Ne,r0,rN,mesh);
-	SetElements(e,e->n,Ne,x,order,nt);
+	GenerateNodes(x,Ne,r0,rN,mesh,atom);
+	SetElements(e,e->n,Ne,x,order);
 	//----------------------------------------------------------------------
 	//----------------------------------------------------------------------
 	//----------------------------------------------------------------------
@@ -90,7 +90,7 @@ void LagrangeInterpolation(int Ne,double r0,double rN,char kindpot[180],char mes
 	//----------------------------------------------------------------------
 	//------------------- EVALUATE THE POTENTIAL ---------------------------
 	//
-	EvaluatePotential(kindpot,Ne,order,e,e->n,e->pot);
+	EvaluatePotential(kindpot,atom,angular,Ne,order,e,e->n,e->pot);
 	//
 	//----------------------------------------------------------------------
 	//----------------------------------------------------------------------
@@ -120,32 +120,17 @@ void LagrangeInterpolation(int Ne,double r0,double rN,char kindpot[180],char mes
 	GetHmatrix(hij,vij,kij,K,K);
 	//print_matrix("*** H  Matrix ***",K,K,hij);
 	diag(K,hij,sij,ei,ci);
-	print_matrix("EIGENVALUES",1,K,ei);
+	//print_matrix("EIGENVALUES",1,K,ei);
+	PrintPotentialData(order,Ne,e,e->n,e->pot);
+	EnergyResults(ei,20);
+	PrintPotentialData(order,Ne,e,e->n,e->pot);
 	//Perform_SCF(sij,kij,vij,nodes);
 
-	/*for(int i=0; i<Ne; i++)
+	/*printf("ELEMENT SIZE:\n");
+	for(int i=0; i<Ne; i++)
         {
                         printf("e[%d].h = %lf\n",i,e[i].h);
-        }
-	printf("NODE PER ELEMENT VALUE:\n");
-        for(int i=0; i<Ne; i++)
-        {
-                for(int j=0; j<p; j++)
-                {
-                        printf("e[%d].n[%d].x = %lf\n",i,j,e[i].n[j].x);
-
-                }
-        }
-	printf("NODE PER ELEMENT VALUE:\n");
-        for(int i=0; i<Ne; i++)
-        {
-                for(int j=0; j<p; j++)
-                {
-                        printf("e[%d].v[%d].x = %lf\n",i,j,e[i].pot[j].x);
-
-                }
         }*/
-
 
 	free(k_mat);
 	free(v_mat);
