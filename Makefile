@@ -16,9 +16,11 @@ YELLOW = \033[1;33m
 NC = \033[1;0m
 UNAME := $(shell uname)
 ifeq ($(UNAME), Darwin)
+LIB = -framework Accelerate
 TARGET = FEMITO_macos
 endif
 ifeq ($(UNAME), Linux)
+LIB = -llapack 
 TARGET = FEMITO_linux
 endif
 
@@ -37,7 +39,7 @@ CFLAGS = -I$(INC)
 
 $(BIN)/$(TARGET) : $(OBJECT)
 	@echo "$(RED)LINKING...$(NC)"
-	$(CC) -o $@ $^
+	$(CC) -o  $@ $^ $(LIB)
 	@echo "$(YELLOW)FINISHED!!!$(NC)"
 	@echo "$(YELLOW)SUCCESFULL!!!$(NC)"
 	@echo "$(BLUE)OPERATING SISTEM: $(SYSNAME)!!!...$(NC)"
