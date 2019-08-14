@@ -1,0 +1,6 @@
+Potential: Harmonic
+Number of Elements: 100
+Initial Point: -5.0
+Final Point: 5.0
+Lagrange Interpolation Order: 2
+Kind Of Mesh: Uniform

@@ -1,6 +1,8 @@
-Number Elements: 10
+Potential: Atomic
+Atom: H
+Angular Momentum (l): 0
+Number Of Elements: 200
 Initial Point: 0.0
-Final Point: 10.0
-Atom: He
-Lagrange Interpolation Order: 1
-Kind Of Mesh: Default
+Final Point: 200
+Lagrange Interpolation Order: 3
+Kind Of Mesh: Froese-Fischer
