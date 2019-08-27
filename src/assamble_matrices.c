@@ -29,6 +29,7 @@ void FirstGradePol(int Ne,int order,int *link_mat,double *s_mat,double *k_mat,do
 			}
 		}
 	}
+	printf("POT INTEGRAL = %lf\n",eMatV[0]);
 
 
 }

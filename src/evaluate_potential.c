@@ -4,6 +4,7 @@
 #include "data_structures.h"
 extern double Pn_Interpolation(int order,double *x,double *y,double target);
 extern int AtomicNumber(char target[3]);
+extern double nPolExtrapolation(double *x,double *y, int N,double target);
 double HarmonicPot(double this)
 {
 	return this*this;
@@ -65,7 +66,11 @@ void EvaluatePotential(char kindpot[180],char atom[3],int angular,int Ne,int ord
 					//double x[order+1],y[order+1];
 					x[0]=e[1].n[0].x; y[0]=e[1].pot[0].x;
 					x[1]=e[2].n[0].x; y[1]=e[2].pot[0].x;
-					//x[2]=e[3].n[0].x; y[2]=e[3].pot[0].x;
+					x[2]=e[3].n[0].x; y[2]=e[3].pot[0].x;
+					x[3]=e[4].n[0].x; y[3]=e[4].pot[0].x;
+					x[4]=e[5].n[0].x; y[4]=e[5].pot[0].x;
+					x[5]=e[6].n[0].x; y[5]=e[6].pot[0].x;
+					x[6]=e[7].n[0].x; y[6]=e[7].pot[0].x;
 					e[0].pot[0].x = Pn_Interpolation(poly,x,y,0.000000);
 					printf("Potential Interpolation Value at V(0): %lf\n",e[0].pot[0].x);
 				}
@@ -111,8 +116,9 @@ void EvaluatePotential(char kindpot[180],char atom[3],int angular,int Ne,int ord
 				x[4]=e[1].n[2].x; y[4]=e[1].pot[2].x;
 				x[5]=e[1].n[3].x; y[5]=e[1].pot[3].x;
 				x[6]=e[2].n[1].x; y[6]=e[2].pot[1].x;
-				e[0].pot[0].x = Pn_Interpolation(poly,x,y,0.000000);
-				//printf("Potential Interpolation Value at V(0): %lf\n",e[0].pot[0].x);
+				//e[0].pot[0].x = Pn_Interpolation(poly,x,y,0.000000);
+				e[0].pot[0].x = nPolExtrapolation(x,y,poly,0.000000);
+				printf("Potential Interpolation Value V(0): %lf\n",e[0].pot[0].x);
 				//printf("Interpolation Value = %lf\n",e[0].pot[0].x);
 				break;
 		}

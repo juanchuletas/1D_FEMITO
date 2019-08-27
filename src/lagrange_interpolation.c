@@ -3,6 +3,7 @@
 #include <string.h>
 #include "data_structures.h"
 #include <math.h>
+extern void PrintWaveFunction(int Ne,int order,struct Element *e,struct Vertex *n,double *wfn,double *vecE);
 extern void EnergyResults(double *eigenval,int N);
 extern void PrintPotentialData(int order,int Ne,struct Element *e,struct Vertex *n,struct Vertex *pot);
 extern void GenerateNodes(double *x,int nodes,double r0,double rN,char mesh[180],char atom[3]);
@@ -15,7 +16,8 @@ extern void FillZeroMat(double *mat,int M,int N);
 extern void GetHmatrix(double *h,double *v,double *k,int M,int N);
 extern void diag (int n, double *h, double *s, double *e, double *v);
 extern void ReduceMatrices(double *sij,double *kij,double *vij,double *s_mat,double *k_mat,double *v_mat,int nodes);
-
+extern void NormWfn(double *wfn_vec,int *link_mat,struct Element *e,int order,int Ne);
+extern int normWF(int nele,int p,int *g, struct Element *e, double *matC);
 void LagrangeInterpolation(int Ne,double r0,double rN,char kindpot[180],char mesh[180],char atom[3],int order,int angular)
 {
 
@@ -44,10 +46,6 @@ void LagrangeInterpolation(int Ne,double r0,double rN,char kindpot[180],char mes
 	v = (double *)malloc(sizeof(double)*(nodes));
 	//***************** Link Matrix ****************************************
 	link_mat = (int *)malloc(sizeof(int)*(Ne*(order+1)));
-	//***************** Eigenvectos and eigenvalues ************************
-	ci = (double *)malloc(pow(M,2)*sizeof(double));
-        ei = (double *)malloc((N)*sizeof(double));
-
 	// Memory allocation for the elemental matrices******
 	//eMatS = (double *)malloc(sizeof(double)*(eMatSize));
 	//eMatK = (double *)malloc(sizeof(double)*(eMatSize));
@@ -66,7 +64,7 @@ void LagrangeInterpolation(int Ne,double r0,double rN,char kindpot[180],char mes
 	vij = (double *)malloc(sizeof(double)*(K*K));
 	hij = (double *)malloc(sizeof(double)*(K*K));
 	//***************** Eigenvectos and eigenvalues ************************
-	ci = (double *)malloc(pow(K,2)*sizeof(double));
+	ci = (double *)malloc(sizeof(double)*(K*K));
         ei = (double *)malloc((K)*sizeof(double));
 	//----------------------------------------------------------------------
 	//----------------------------------------------------------------------
@@ -122,15 +120,13 @@ void LagrangeInterpolation(int Ne,double r0,double rN,char kindpot[180],char mes
 	diag(K,hij,sij,ei,ci);
 	//print_matrix("EIGENVALUES",1,K,ei);
 	PrintPotentialData(order,Ne,e,e->n,e->pot);
-	EnergyResults(ei,20);
+	EnergyResults(ei,10);
 	PrintPotentialData(order,Ne,e,e->n,e->pot);
+	//normWF(Ne,order,link_mat,e,ci);
+	NormWfn(ci,link_mat,e,order,Ne);
+	//print_matrix("EIGENVECTORS",K,K,ci);
+	PrintWaveFunction(Ne,order,e,e->n,ci,ei);
 	//Perform_SCF(sij,kij,vij,nodes);
-
-	/*printf("ELEMENT SIZE:\n");
-	for(int i=0; i<Ne; i++)
-        {
-                        printf("e[%d].h = %lf\n",i,e[i].h);
-        }*/
 
 	free(k_mat);
 	free(v_mat);
