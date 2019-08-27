@@ -220,8 +220,10 @@ int AtomicNumber(char data[3])
 	{
 		if(strcmp(data,element[i].name_element)==0)
 		{
-			return target = element[i].atomic_number;
+			target = element[i].atomic_number;
+			break;
 		}
 	}
+	return target;
 
 }
