@@ -13,11 +13,13 @@ extern void print_matrix( char* desc, int m, int n, double* a);
 extern void GetLinkMatrix(int *link_mat,int Ne,int order);
 extern void AssambleGlobalMatrices(int Ne,int order,int *link_mat,double *s_mat,double *k_mat,double *v_mat,double *v,struct Element *e,struct Vertex *pot);
 extern void FillZeroMat(double *mat,int M,int N);
-extern void GetHmatrix(double *h,double *v,double *k,int M,int N);
-extern void diag (int n, double *h, double *s, double *e, double *v);
+//extern void GetHmatrix(double *h,double *v,double *k,int M,int N);
+//extern void diag (int n, double *h, double *s, double *e, double *v);
 extern void ReduceMatrices(double *sij,double *kij,double *vij,double *s_mat,double *k_mat,double *v_mat,int nodes);
-extern void NormWfn(double *wfn_vec,int *link_mat,struct Element *e,int order,int Ne);
-extern int normWF(int nele,int p,int *g, struct Element *e, double *matC);
+//extern void NormWfn(double *wfn_vec,int *link_mat,struct Element *e,int order,int Ne);
+//extern void GetHartreePotential(double *mat_vh,double *sij,double *kij,double *wfn,int Ne,int order);
+extern void PerformSCF(double *hij,double *sij,double *kij,double *vij,double *vh_mat,double *wfn,double *vec_ei,int *link_mat,struct Element *e,int Ne,int order);
+
 void LagrangeInterpolation(int Ne,double r0,double rN,char kindpot[180],char mesh[180],char atom[3],int order,int angular)
 {
 
@@ -57,12 +59,13 @@ void LagrangeInterpolation(int Ne,double r0,double rN,char kindpot[180],char mes
 	v_mat = (double *)malloc(sizeof(double)*(nodes*nodes));
 	//
 	// **** Memory allocation for reduces matrices
-	double *sij,*kij,*vij,*hij;
+	double *sij,*kij,*vij,*hij,*vh_mat;
 	int K = nodes-2;
 	sij = (double *)malloc(sizeof(double)*(K*K));
 	kij = (double *)malloc(sizeof(double)*(K*K));
 	vij = (double *)malloc(sizeof(double)*(K*K));
 	hij = (double *)malloc(sizeof(double)*(K*K));
+	vh_mat = (double *)malloc(sizeof(double)*(K*K));
 	//***************** Eigenvectos and eigenvalues ************************
 	ci = (double *)malloc(sizeof(double)*(K*K));
         ei = (double *)malloc((K)*sizeof(double));
@@ -114,17 +117,10 @@ void LagrangeInterpolation(int Ne,double r0,double rN,char kindpot[180],char mes
 	//print_matrix("*** Kinect Matrix ***",K,K,kij);
 	//print_matrix("*** Potential Matrix ***",K,K,vij);
 	//---------------------------------------------------
-	FillZeroMat(hij,K,K);	// FILL WITH 0.0 THE MATRIX V
-	GetHmatrix(hij,vij,kij,K,K);
-	//print_matrix("*** H  Matrix ***",K,K,hij);
-	diag(K,hij,sij,ei,ci);
-	//print_matrix("EIGENVALUES",1,K,ei);
 	PrintPotentialData(order,Ne,e,e->n,e->pot);
-	EnergyResults(ei,10);
-	PrintPotentialData(order,Ne,e,e->n,e->pot);
-	//normWF(Ne,order,link_mat,e,ci);
-	NormWfn(ci,link_mat,e,order,Ne);
-	//print_matrix("EIGENVECTORS",K,K,ci);
+	PerformSCF(hij,sij,kij,vij,vh_mat,ci,ei,link_mat,e,Ne,order);
+	//EnergyResults(ei,10);
+	//print_matrix("Hartree-Potential",K,K,mat_vh);
 	PrintWaveFunction(Ne,order,e,e->n,ci,ei);
 	//Perform_SCF(sij,kij,vij,nodes);
 
@@ -133,6 +129,7 @@ void LagrangeInterpolation(int Ne,double r0,double rN,char kindpot[180],char mes
 	free(s_mat);
 	free(link_mat);
 	free(hij);
+	free(vh_mat);
 	free(sij);
 	free(kij);
 	free(vij);
