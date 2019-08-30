@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "wfn_operations.h"
 extern void dgesv_( int* n, int* nrhs, double* a, int* lda, int* ipiv, double* b, int* ldb, int* info );
-void GetHartreePotential(double *mat_vh,double *sij,double *kij,double *wfn,int Ne,int order)
+void GetHartreePotential(double *mat_vh,double *sij,double *kij,double *wfn,int Ne,int order,int phase)
 {
 	int nodes = Ne*order + 1;
 	int r_nodes = nodes-2;
@@ -11,15 +12,25 @@ void GetHartreePotential(double *mat_vh,double *sij,double *kij,double *wfn,int 
 	int LDB=N;
 	int ipiv[N];
 	int info;
-	int orb = r_nodes;
-	//LOCAL ARRAYS:
-	double vec_h[r_nodes*r_nodes],aux_mat[r_nodes*r_nodes],mat_kij[r_nodes*r_nodes];
+	int orb=0;
+	double rho,coeffwfn;
+	const double PI = 3.14159265358979323846;
 
-	for(int i=0; i<r_nodes*r_nodes; i++)
+	//LOCAL ARRAYS:
+	//double vec_h[r_nodes*r_nodes],aux_mat[r_nodes*r_nodes],mat_kij[r_nodes*r_nodes];
+	double vec_h[r_nodes],aux_mat[r_nodes*r_nodes],mat_kij[r_nodes*r_nodes];
+	int k=0;
+	for(int i=0; i<r_nodes; i++)
 	{
-		aux_mat[i] = sij[i]*(wfn[i]*wfn[i]);
-		mat_kij[i] = 2.0*kij[i];
-		//printf("2kij=%lf   Sij=%lf  rho=%lf\n",mat_kij[i],sij[i],wfn[i]*wfn[i]);
+		coeffwfn = wfn[i + orb*r_nodes]*phase;
+		rho = coeffwfn*coeffwfn;
+		for(int j=0; j<r_nodes; j++)
+		{
+			aux_mat[k] = sij[k]*(rho);
+			mat_kij[k] = 2.0*kij[k];
+			k++;
+
+		}
 	}
 	dgesv_(&N,&NRHS,mat_kij,&LDA,ipiv,aux_mat,&LDB,&info);
 	if( info > 0 ) 
@@ -33,8 +44,7 @@ void GetHartreePotential(double *mat_vh,double *sij,double *kij,double *wfn,int 
 	for(int i=0; i<r_nodes*r_nodes; i++)
 	{
 		mat_vh[i] = aux_mat[i];
-		
-	//	printf("Hartree Pot = %lf\n",mat_vh[i]);
+		//printf("Hartree Pot = %lf\n",mat_vh[i]);
 	}
 
 }

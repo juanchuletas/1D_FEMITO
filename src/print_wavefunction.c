@@ -1,36 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "data_structures.h"
+#include "wfn_operations.h"
 #include <math.h>
-int GetWfnPhase(int nodos,int orb,int *phase,double *matC)
-{
-  int i,answer;
-  double pre,val,der;
-  pre = matC[orb];
-  i=1;
-  answer = 1;
-  while( i < nodos && answer != 0 ){
-    val = matC[i + orb*nodos];
-
-    der = val - pre;
-
-    if( fabs(der) > 1E-5 )
-      answer = 0;
-
-    pre = val;
-
-    i++;
-  }
-
-
-  if( der > 0 )
-    *phase = 1;
-  else
-    *phase = -1;
-
-
-  return 0;
-}
 void PrintWaveFunction(int Ne,int order,struct Element *e,struct Vertex *n,double *wfn,double *vecE)
 {
 	
