@@ -65,7 +65,7 @@ void LagrangeInterpolation(int Ne,double r0,double rN,char kindpot[180],char mes
 	kij = (double *)malloc(sizeof(double)*(K*K));
 	vij = (double *)malloc(sizeof(double)*(K*K));
 	hij = (double *)malloc(sizeof(double)*(K*K));
-	vh_mat = (double *)malloc(sizeof(double)*(K*K));
+	vh_mat = (double *)malloc(sizeof(double)*(K));
 	//***************** Eigenvectos and eigenvalues ************************
 	ci = (double *)malloc(sizeof(double)*(K*K));
         ei = (double *)malloc((K)*sizeof(double));

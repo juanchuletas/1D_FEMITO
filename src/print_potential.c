@@ -12,12 +12,14 @@ void PrintPotentialData(int order,int Ne, struct Element *e,struct Vertex *n,str
 		printf("ERROR\n");
 		exit(1);
 	}
-	fprintf(out,"r_i\t \tV(r_i)\n");
+	fprintf(out,"Node\tr_i\t \tV(r_i)\n");
+	int k=0;
 	for(int i=0; i<Ne; i++)
 	{
 		for(int j=0; j<order; j++)
 		{
-			fprintf(out,"%lf\t%lf\n",e[i].n[j].x,e[i].pot[j].x);
+			fprintf(out,"%d\t%lf\t%lf\n",k,e[i].n[j].x,e[i].pot[j].x);
+			k++;
 		}
 	}
 	fclose(out);

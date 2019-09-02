@@ -8,8 +8,8 @@ extern void NormWfn(double *wfn_vec,int *link_mat,struct Element *e,int order,in
 extern void GetHartreePotential(double *mat_vh,double *sij,double *kij,double *wfn,int Ne,int order,int phase);
 extern void diag (int n, double *h, double *s, double *e, double *v);
 extern void GetHmatrix(double *h,double *v,double *k,int M,int N);
-
-void PerformSCF(double *hij,double *sij,double *kij,double *vij,double *vh_mat,double *wfn,double *vec_ei,int *link_mat,struct Element *e,int Ne,int order)
+extern void ComputeDensityMatrix(double *dens_mat,double *wfn,int Ne, int order, int atomicN);
+void PerformSCF(double *hij,double *sij,double *kij,double *vij,double *vh_vec,double *wfn,double *vec_ei,int *link_mat,struct Element *e,int Ne,int order)
 {
         printf("****************************************************************************\n");
 	printf("**************************  SCF MODULE  ************************************\n");
@@ -21,11 +21,12 @@ void PerformSCF(double *hij,double *sij,double *kij,double *vij,double *vh_mat,d
 	int orb=0;
 	
 	double *f_mat = (double *)malloc(sizeof(double)*(K*K));
+	double *dens_mat = (double *)malloc(sizeof(double)*(K*K));
 
 	//   H_ij = K_ij + VN_ij + VEE_ij
 	//FIRST APPROACH TO H_ij MATRIX: 
 	//   Hij = K_ij + VN_ij
-	FillZeroMat(vh_mat,r_nodes,r_nodes);
+	FillZeroMat(vh_vec,r_nodes,1);
 	FillZeroMat(hij,r_nodes,r_nodes);
 	GetHmatrix(hij,vij,kij,r_nodes,r_nodes);
 	int count=0;
@@ -34,12 +35,12 @@ void PerformSCF(double *hij,double *sij,double *kij,double *vij,double *vh_mat,d
 	double orbE_new,orbE_old,delta_energy;
 	delta_energy=10000000000.0;
 	orbE_old=0.0;
-	do
-	{
+	//do
+	//{
 		printf("\n");
 		for(int i=0; i<r_nodes*r_nodes; i++)
 		{
-			f_mat[i] = hij[i] + vh_mat[i];
+			f_mat[i] = hij[i];
 		}	
 		diag(K,f_mat,sij,vec_ei,wfn);
 		orbE_new = vec_ei[0];
@@ -47,7 +48,8 @@ void PerformSCF(double *hij,double *sij,double *kij,double *vij,double *vh_mat,d
 		NormWfn(wfn,link_mat,e,order,Ne);
 		GetWfnPhase(r_nodes,orb,&phase,wfn);
         	//GetWfnRange(r_nodes,orb,phase,&min,&max,wfn,vec_ei[0]);
-		GetHartreePotential(vh_mat,sij,kij,wfn,Ne,order,phase);
+		ComputeDensityMatrix(dens_mat,wfn,Ne,order,2);
+		GetHartreePotential(vh_vec,sij,kij,wfn,Ne,order,phase);
 		//delta_energy = fabs(orbE_old-orbE_new);
 		//orbE_old = orbE_new;
 		/*for(int i=0; i<r_nodes*r_nodes; i++)
@@ -60,8 +62,8 @@ void PerformSCF(double *hij,double *sij,double *kij,double *vij,double *vh_mat,d
 
 
 
-		count++;
-	}while(count<10);
+		//count++;
+	//}while(count<30);
         printf("****************************************************************************\n");
 
 	free(f_mat);
