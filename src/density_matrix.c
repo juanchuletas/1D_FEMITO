@@ -13,6 +13,7 @@ void ComputeDensityMatrix(double *dens_mat,double *wfn,int Ne, int order, int at
 	{
 		for(int nu=0; nu<fembasis; nu++)
 		{
+			dens_mat[sigma*fembasis + nu] = 0.0;
 			for(int orb=0; orb<Norb; orb++)
 			{
 				//rho = rho + wfn[sigma + orb*fembasis]*wfn[sigma + orb*fembasis];
@@ -22,4 +23,5 @@ void ComputeDensityMatrix(double *dens_mat,double *wfn,int Ne, int order, int at
 			}
 		}
 	}
+	printf("END OF DENS MATRIX FUNCTION\n");
 }

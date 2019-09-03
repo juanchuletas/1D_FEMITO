@@ -11,7 +11,7 @@ extern void SetElements(struct Element *e,struct Vertex *n,int Ne, double *x,int
 extern void EvaluatePotential(char kindpot[180],char atom[3],int angular,int Ne,int order,struct Element *e,struct Vertex *n,struct Vertex *pot);
 extern void print_matrix( char* desc, int m, int n, double* a);
 extern void GetLinkMatrix(int *link_mat,int Ne,int order);
-extern void AssambleGlobalMatrices(int Ne,int order,int *link_mat,double *s_mat,double *k_mat,double *v_mat,double *v,struct Element *e,struct Vertex *pot);
+extern void AssambleGlobalMatrices(int Ne,int order,int *link_mat,double *s_mat,double *k_mat,double *v_mat,struct Element *e,struct Vertex *pot);
 extern void FillZeroMat(double *mat,int M,int N);
 //extern void GetHmatrix(double *h,double *v,double *k,int M,int N);
 //extern void diag (int n, double *h, double *s, double *e, double *v);
@@ -32,7 +32,7 @@ void LagrangeInterpolation(int Ne,double r0,double rN,char kindpot[180],char mes
 	N = (Ne+1);
 	int eMatSize = ne*me;
 	double *s_mat,*k_mat,*v_mat,*ei,*ci;
-	double *x,*v;
+	double *x;
 	int *link_mat;
 	struct Element *e;
 
@@ -44,8 +44,6 @@ void LagrangeInterpolation(int Ne,double r0,double rN,char kindpot[180],char mes
         e = (struct Element *)malloc(sizeof(struct Element)*Ne);
 	//***************** Nodes in x ****************************************
 	x = (double *)malloc(sizeof(double)*(Ne+1));
-	//***************** Potential ******************************************
-	v = (double *)malloc(sizeof(double)*(nodes));
 	//***************** Link Matrix ****************************************
 	link_mat = (int *)malloc(sizeof(int)*(Ne*(order+1)));
 	// Memory allocation for the elemental matrices******
@@ -58,7 +56,7 @@ void LagrangeInterpolation(int Ne,double r0,double rN,char kindpot[180],char mes
 	k_mat = (double *)malloc(sizeof(double)*(nodes*nodes));
 	v_mat = (double *)malloc(sizeof(double)*(nodes*nodes));
 	//
-	// **** Memory allocation for reduces matrices
+	// **** Memory allocation for the reduced matrices
 	double *sij,*kij,*vij,*hij,*vh_mat;
 	int K = nodes-2;
 	sij = (double *)malloc(sizeof(double)*(K*K));
@@ -105,7 +103,7 @@ void LagrangeInterpolation(int Ne,double r0,double rN,char kindpot[180],char mes
 	//----------------------------------------------------------------------
 	//----------------------------------------------------------------------
 	//------------------- GET THE GLOBAL MATRICES ---------------------------
-	AssambleGlobalMatrices(Ne,order,link_mat,s_mat,k_mat,v_mat,v,e,e->pot);
+	AssambleGlobalMatrices(Ne,order,link_mat,s_mat,k_mat,v_mat,e,e->pot);
 	//----------------------------------------------------------------------
 	//----------------------------------------------------------------------
 	//print_matrix("*** Overlap Matrix ***",M,N,s_mat);
@@ -122,7 +120,6 @@ void LagrangeInterpolation(int Ne,double r0,double rN,char kindpot[180],char mes
 	//EnergyResults(ei,10);
 	//print_matrix("Hartree-Potential",K,K,mat_vh);
 	PrintWaveFunction(Ne,order,e,e->n,ci,ei);
-	//Perform_SCF(sij,kij,vij,nodes);
 
 	free(k_mat);
 	free(v_mat);
@@ -134,6 +131,8 @@ void LagrangeInterpolation(int Ne,double r0,double rN,char kindpot[180],char mes
 	free(kij);
 	free(vij);
 	free(e);
+	//free(e->n);
+	//free(e->pot);
 	free(x);
 	free(ei);
 	free(ci);

@@ -5,7 +5,7 @@
 #include "wfn_operations.h"
 extern void FillZeroMat(double *mat,int M,int N);
 extern void NormWfn(double *wfn_vec,int *link_mat,struct Element *e,int order,int Ne);
-extern void GetHartreePotential(double *mat_vh,double *sij,double *kij,double *wfn,int Ne,int order,int phase);
+extern void GetHartreePotential(double *mat_vh,double *sij,double *kij,double *wfn,double *vec_ei,int Ne,int order,int phase);
 extern void diag (int n, double *h, double *s, double *e, double *v);
 extern void GetHmatrix(double *h,double *v,double *k,int M,int N);
 extern void ComputeDensityMatrix(double *dens_mat,double *wfn,int Ne, int order, int atomicN);
@@ -47,9 +47,8 @@ void PerformSCF(double *hij,double *sij,double *kij,double *vij,double *vh_vec,d
 		printf("Orbital[%d] energy = %lf    Step: %d\n",0,orbE_new,count);
 		NormWfn(wfn,link_mat,e,order,Ne);
 		GetWfnPhase(r_nodes,orb,&phase,wfn);
-        	//GetWfnRange(r_nodes,orb,phase,&min,&max,wfn,vec_ei[0]);
 		ComputeDensityMatrix(dens_mat,wfn,Ne,order,2);
-		GetHartreePotential(vh_vec,sij,kij,wfn,Ne,order,phase);
+		GetHartreePotential(vh_vec,sij,kij,wfn,vec_ei,Ne,order,phase);
 		//delta_energy = fabs(orbE_old-orbE_new);
 		//orbE_old = orbE_new;
 		/*for(int i=0; i<r_nodes*r_nodes; i++)
@@ -67,5 +66,6 @@ void PerformSCF(double *hij,double *sij,double *kij,double *vij,double *vh_vec,d
         printf("****************************************************************************\n");
 
 	free(f_mat);
+	free(dens_mat);
 
 }

@@ -29,7 +29,7 @@ void FirstGradePol(int Ne,int order,int *link_mat,double *s_mat,double *k_mat,do
 			}
 		}
 	}
-	printf("POT INTEGRAL = %lf\n",eMatV[0]);
+	printf("POT INTEGRAL = %lf\n",v_mat[0]);
 
 
 }
@@ -96,7 +96,7 @@ void ThirdGradePol(int Ne,int order,int *link_mat,double *s_mat,double *k_mat,do
 
 
 }
-void AssambleGlobalMatrices(int Ne,int order,int *link_mat,double *s_mat,double *k_mat,double *v_mat,double *v,struct Element *e,struct Vertex *pot)
+void AssambleGlobalMatrices(int Ne,int order,int *link_mat,double *s_mat,double *k_mat,double *v_mat,struct Element *e,struct Vertex *pot)
 {
 	int p,l,m;
 	int nodes=(order*Ne) + 1;
