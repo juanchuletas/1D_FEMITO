@@ -21,12 +21,13 @@ void PrintWaveFunction(int Ne,int order,struct Element *e,struct Vertex *n,doubl
 	printf("Wave Function in: wfn.dat\n");
 	fprintf(wfn_data,"#Node\tPhi(r_i)\tRho(r_i)\n");
 	GetWfnPhase(r_nodes,orb,&phase,wfn);
-	for(int i=1; i<=r_nodes; i++)
+	printf("Wave function phase: %d\n",phase);
+	for(int i=0; i<r_nodes; i++)
 	{
-		cfwfn = wfn[(i-1) + r_nodes*orb]*phase;
+		cfwfn = wfn[i + r_nodes*orb]*phase;
 		coefrho = cfwfn*cfwfn;
-		cfwfn += 0.5*vecE[orb];
-		coefrho += 0.5*vecE[orb];
+		//cfwfn += 0.5*vecE[orb];
+		//coefrho += 0.5*vecE[orb];
 		fprintf(wfn_data,"%d\t% lf\t% lf\n",i,cfwfn,coefrho);
 
 		/*for(int j=0;j<order;j++)

@@ -23,4 +23,26 @@ void ScalarXMatrix(double coeff,double *mat_A,double *mat_Res,int N,int M)
 		mat_Res[i] = coeff*mat_A[i];
 	}
 }
-
+void ColumnMayor(double *mat_A, double *mat_C, int N, int M)
+{
+	printf("MatC:\tMatA\n");
+	for(int i=0; i<N; i++)
+	{
+		for(int j=0; j<M; j++)
+		{
+			mat_C[j*M + i] = mat_A[i*N + j];
+			 
+		}
+	}
+}
+void RowMayor(double *mat_A, double *mat_C, int N, int M)
+{
+	for(int i=0; i<N; i++)
+	{
+		for(int j=0; j<M; j++)
+		{
+			mat_C[i*N + j] = mat_A[j*M + i];
+			 
+		}
+	}
+}

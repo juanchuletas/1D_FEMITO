@@ -46,9 +46,9 @@ void PerformSCF(double *hij,double *sij,double *kij,double *vij,double *vh_vec,d
 		orbE_new = vec_ei[0];
 		printf("Orbital[%d] energy = %lf    Step: %d\n",0,orbE_new,count);
 		NormWfn(wfn,link_mat,e,order,Ne);
-		GetWfnPhase(r_nodes,orb,&phase,wfn);
-		ComputeDensityMatrix(dens_mat,wfn,Ne,order,2);
-		GetHartreePotential(vh_vec,sij,kij,wfn,vec_ei,Ne,order,phase);
+		//GetWfnPhase(r_nodes,orb,&phase,wfn);
+		//ComputeDensityMatrix(dens_mat,wfn,Ne,order,2);
+		//GetHartreePotential(vh_vec,sij,kij,wfn,vec_ei,Ne,order,phase);
 		//delta_energy = fabs(orbE_old-orbE_new);
 		//orbE_old = orbE_new;
 		/*for(int i=0; i<r_nodes*r_nodes; i++)
