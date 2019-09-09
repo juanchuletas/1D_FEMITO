@@ -11,30 +11,24 @@ extern void SetElements(struct Element *e,struct Vertex *n,int Ne, double *x,int
 extern void EvaluatePotential(char kindpot[180],char atom[3],int angular,int Ne,int order,struct Element *e,struct Vertex *n,struct Vertex *pot);
 extern void print_matrix( char* desc, int m, int n, double* a);
 extern void GetLinkMatrix(int *link_mat,int Ne,int order);
-extern void AssambleGlobalMatrices(int Ne,int order,int *link_mat,double *s_mat,double *k_mat,double *v_mat,struct Element *e,struct Vertex *pot);
-extern void FillZeroMat(double *mat,int M,int N);
+extern void AssambleGlobalMatrices(int Ne,int order,int *link_mat,double *sij,double *kij,double *vij,double *uij,double *lij,struct Element *e,struct Vertex *pot);
+//extern void FillZeroMat(double *mat,int M,int N);
 //extern void GetHmatrix(double *h,double *v,double *k,int M,int N);
 //extern void diag (int n, double *h, double *s, double *e, double *v);
-extern void ReduceMatrices(double *sij,double *kij,double *vij,double *s_mat,double *k_mat,double *v_mat,int nodes);
+//extern void ReduceMatrices(double *sij,double *kij,double *vij,double *s_mat,double *k_mat,double *v_mat,int nodes);
 //extern void NormWfn(double *wfn_vec,int *link_mat,struct Element *e,int order,int Ne);
 //extern void GetHartreePotential(double *mat_vh,double *sij,double *kij,double *wfn,int Ne,int order);
-extern void PerformSCF(double *hij,double *sij,double *kij,double *vij,double *vh_mat,double *wfn,double *vec_ei,int *link_mat,struct Element *e,int Ne,int order);
+extern void PerformSCF(double *hij,double *sij,double *kij,double *vij,double *uij,double *lij,double *wfn,double *vec_ei,int *link_mat,struct Element *e,int Ne,int order);
 
 void LagrangeInterpolation(int Ne,double r0,double rN,char kindpot[180],char mesh[180],char atom[3],int order,int angular)
 {
+	int nodes = Ne*order + 1;
+	int fembasis = nodes-2;
+	int fembasis_poisson = nodes-1;
 
-	int M,me,N,ne,nodes,p;
-	p = order + 1;
-	nodes = (order*Ne) + 1;
-	me = (order+1);
-	ne = (order+1);
-	M = (Ne+1);
-	N = (Ne+1);
-	int eMatSize = ne*me;
-	double *s_mat,*k_mat,*v_mat,*ei,*ci;
-	double *x;
 	int *link_mat;
 	struct Element *e;
+	double *x;
 
 	//---------- MEMORY ALLOCATION FOR THE NECCESARY MATRICES ----------
 	//----------------------------------------------------------------------
@@ -46,27 +40,23 @@ void LagrangeInterpolation(int Ne,double r0,double rN,char kindpot[180],char mes
 	x = (double *)malloc(sizeof(double)*(Ne+1));
 	//***************** Link Matrix ****************************************
 	link_mat = (int *)malloc(sizeof(int)*(Ne*(order+1)));
-	// Memory allocation for the elemental matrices******
-	//eMatS = (double *)malloc(sizeof(double)*(eMatSize));
-	//eMatK = (double *)malloc(sizeof(double)*(eMatSize));
-	//eMatV = (double *)malloc(sizeof(double)*(eMatSize));
-	// Memory allocation for the global matrices*********
 	
-	s_mat = (double *)malloc(sizeof(double)*(nodes*nodes));
-	k_mat = (double *)malloc(sizeof(double)*(nodes*nodes));
-	v_mat = (double *)malloc(sizeof(double)*(nodes*nodes));
-	//
-	// **** Memory allocation for the reduced matrices
-	double *sij,*kij,*vij,*hij,*vh_mat;
+	// **** Memory allocation: Reduced matrices for eigenvalue problem
+	double *sij,*kij,*vij,*hij,*vh_mat,*uij,*lij,*ci,*ei,*vhij;
 	int K = nodes-2;
-	sij = (double *)malloc(sizeof(double)*(K*K));
-	kij = (double *)malloc(sizeof(double)*(K*K));
-	vij = (double *)malloc(sizeof(double)*(K*K));
-	hij = (double *)malloc(sizeof(double)*(K*K));
-	vh_mat = (double *)malloc(sizeof(double)*(K));
+	sij = (double *)malloc(sizeof(double)*(fembasis*fembasis));
+	kij = (double *)malloc(sizeof(double)*(fembasis*fembasis));
+	vij = (double *)malloc(sizeof(double)*(fembasis*fembasis));
+	hij = (double *)malloc(sizeof(double)*(fembasis*fembasis));
+	vhij = (double *)malloc(sizeof(double)*(fembasis*fembasis));
 	//***************** Eigenvectos and eigenvalues ************************
 	ci = (double *)malloc(sizeof(double)*(K*K));
         ei = (double *)malloc((K)*sizeof(double));
+	// **** Memory allocation: Reduced matrices for the Poisson problem
+	lij = (double *)malloc(sizeof(double)*(fembasis_poisson*fembasis_poisson));
+	uij = (double *)malloc(sizeof(double)*(fembasis_poisson*fembasis_poisson));
+	
+
 	//----------------------------------------------------------------------
 	//----------------------------------------------------------------------
 	//----------------------------------------------------------------------
@@ -78,12 +68,6 @@ void LagrangeInterpolation(int Ne,double r0,double rN,char kindpot[180],char mes
 	GenerateNodes(x,Ne,r0,rN,mesh,atom);
 	SetElements(e,e->n,Ne,x,order);
 	//----------------------------------------------------------------------
-	//----------------------------------------------------------------------
-	//----------------------------------------------------------------------
-	//------------- FILL THE GLOBAL MATRICES WITH ZEROS --------------------
-	FillZeroMat(s_mat,nodes,nodes);	// FILL WITH 0.0 THE MATRIX S
-	FillZeroMat(k_mat,nodes,nodes);	// FILL WITH 0.0 THE MATRIX K
-	FillZeroMat(v_mat,nodes,nodes);	// FILL WITH 0.0 THE MATRIX V
 	//----------------------------------------------------------------------
 	//----------------------------------------------------------------------
 	//----------------------------------------------------------------------
@@ -103,36 +87,29 @@ void LagrangeInterpolation(int Ne,double r0,double rN,char kindpot[180],char mes
 	//----------------------------------------------------------------------
 	//----------------------------------------------------------------------
 	//------------------- GET THE GLOBAL MATRICES ---------------------------
-	AssambleGlobalMatrices(Ne,order,link_mat,s_mat,k_mat,v_mat,e,e->pot);
+	AssambleGlobalMatrices(Ne,order,link_mat,sij,kij,vij,uij,lij,e,e->pot);
 	//----------------------------------------------------------------------
 	//----------------------------------------------------------------------
-	//print_matrix("*** Overlap Matrix ***",M,N,s_mat);
-	//print_matrix("*** Kinect Matrix ***",M,N,k_mat);
-        //print_matrix("*** Potential Matrix ***",M,N,v_mat);
-	//print_matrix("*** H Matrix ***",M,N,h_mat);
-	ReduceMatrices(sij,kij,vij,s_mat,k_mat,v_mat,nodes);
-	//print_matrix("*** Overlap Matrix ***",K,K,sij);
-	//print_matrix("*** Kinect Matrix ***",K,K,kij);
-	//print_matrix("*** Potential Matrix ***",K,K,vij);
-	//---------------------------------------------------
+	print_matrix("*** Overlap Matrix ***",K,K,sij);
+	print_matrix("*** Kinect Matrix ***",K,K,kij);
+        print_matrix("*** Potential Matrix ***",K,K,vij);
+        print_matrix("*** U Poisson Matrix ***",fembasis_poisson,fembasis_poisson,uij);
+        print_matrix("*** L Poisson Matrix ***",fembasis_poisson,fembasis_poisson,lij);
 	PrintPotentialData(order,Ne,e,e->n,e->pot);
-	PerformSCF(hij,sij,kij,vij,vh_mat,ci,ei,link_mat,e,Ne,order);
+        PerformSCF(hij,sij,kij,vij,uij,lij,ci,ei,link_mat,e,Ne,order);
 	//EnergyResults(ei,10);
 	//print_matrix("Hartree-Potential",K,K,mat_vh);
 	PrintWaveFunction(Ne,order,e,e->n,ci,ei);
 
-	free(k_mat);
-	free(v_mat);
-	free(s_mat);
 	free(link_mat);
 	free(hij);
-	free(vh_mat);
+	free(vhij);
 	free(sij);
 	free(kij);
+	free(uij);
+	free(lij);
 	free(vij);
 	free(e);
-	//free(e->n);
-	//free(e->pot);
 	free(x);
 	free(ei);
 	free(ci);

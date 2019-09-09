@@ -1,6 +1,6 @@
 #include<stdio.h>
 #include <stdlib.h>
-void ReduceMatrices(double *sij,double *kij,double *vij,double *s_mat,double *k_mat,double *v_mat,int nodes)
+void ReduceMatrices(double *sij,double *kij,double *vij,double *uij,double *lij,double *s_mat,double *k_mat,double *v_mat,double *u_mat,double *l_mat,int nodes)
 {
 	int l=0;
 	int n = nodes;
@@ -14,5 +14,16 @@ void ReduceMatrices(double *sij,double *kij,double *vij,double *s_mat,double *k_
 			l++;
 		}
     	}
+	int k = 0;
+	int m = nodes;
+	for(int i=0; i<m-1; i++)
+	{
+		for(int j=0; j<m-1; j++)
+		{
+			uij[k] = u_mat[i*m+j];
+			lij[k] = l_mat[i*m+j];
+			k++;
+		}
+	}
 
 }
