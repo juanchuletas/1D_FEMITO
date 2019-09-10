@@ -4,7 +4,7 @@
 #include "data_structures.h"
 #include "wfn_operations.h"
 extern void FillZeroMat(double *mat,int M,int N);
-extern double *PoissonSolver(double *uij,double *lij,double *wfn,int Ne,int order);
+extern double *PoissonSolver(double *uij,double *lij,double *wfn,int Ne,int order,int phase);
 extern void AssambleHartreePot(int Ne,int order,int *link_mat,double *vhij,struct Element *e,double *v);
 extern void print_matrix(char *name,int m,int n,double *matA);
 extern void NormWfn(double *wfn_vec,int *link_mat,struct Element *e,int order,int Ne);
@@ -39,31 +39,35 @@ void PerformSCF(double *hij,double *sij,double *kij,double *vij,double *uij,doub
 	double orbE_new,orbE_old,delta_energy;
 	delta_energy=10000000000.0;
 	orbE_old=0.0;
-	//do
-	//{
-		printf("\n");
-		/*for(int i=0; i<r_nodes*r_nodes; i++)
+
+
+
+	diag(K,hij,sij,vec_ei,wfn);
+        orbE_new = vec_ei[0];
+        printf("Orbital[%d] energy = %lf    Step: %d\n",0,0.5*orbE_new,count);
+        NormWfn(wfn,link_mat,e,order,Ne);
+        GetWfnPhase(r_nodes,orb,&phase,wfn);
+	//ComputeDensityMatrix(dens_mat,wfn,Ne,order,2);
+        hartree_vec = PoissonSolver(sij,lij,wfn,Ne,order,phase);
+	AssambleHartreePot(Ne,order,link_mat,vhij,e,hartree_vec);
+	do
+	{
+		//printf("ADDING THE HARTREE POTENTIAL MATRIX TO THE EIGENVALUE PROBLEM\n");
+		for(int i=0; i<K*K; i++)
 		{
-			f_mat[i] = hij[i];
-		}*/	
-		diag(K,hij,sij,vec_ei,wfn);
-		orbE_new = vec_ei[0];
-		printf("Orbital[%d] energy = %lf    Step: %d\n",0,orbE_new,count);
-		NormWfn(wfn,link_mat,e,order,Ne);
-		GetWfnPhase(r_nodes,orb,&phase,wfn);
-		hartree_vec = PoissonSolver(uij,lij,wfn,Ne,order);
-		printf("HARTREE POTENTIAL AT NODES:\n");
-		for(int i=0; i<nodes; i++)
-		{
-			printf("%d   %lf\n",i,hartree_vec[i]);
+			f_mat[i] = hij[i] + vhij[i];
 		}
+		diag(K,f_mat,sij,vec_ei,wfn);
+        	//printf("Orbital[%d] energy = %lf    Step: %d\n",0,0.5*vec_ei[0],count);
+        	NormWfn(wfn,link_mat,e,order,Ne);
+        	GetWfnPhase(r_nodes,orb,&phase,wfn);
+        	hartree_vec = PoissonSolver(sij,lij,wfn,Ne,order,phase);
 		AssambleHartreePot(Ne,order,link_mat,vhij,e,hartree_vec);
-		print_matrix("*** Hartree Matrix ***",K,K,vhij);
+		count++;
 
-		//ComputeDensityMatrix(dens_mat,wfn,Ne,order,2);
+	}while(count<20);
+	//ComputeDensityMatrix(dens_mat,wfn,Ne,order,2);
 
-		//count++;
-	//}while(count<30);
         printf("****************************************************************************\n");
 
 	free(f_mat);

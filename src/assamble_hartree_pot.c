@@ -3,7 +3,7 @@
 #include "data_structures.h"
 extern double *ElementalHartreePotentialMatrix(int order,double *vh);
 extern void FillZeroMat(double *matA,int N, int M);
-void FirstGradeHartree(int Ne,int order,int *link_mat,double *h_mat,struct Element *e,double *vh)
+void GetHartreeMatrix(int Ne,int order,int *link_mat,double *h_mat,struct Element *e,double *vh)
 {
         int p,l,m;
         int nodes=(order*Ne) + 1;
@@ -30,7 +30,6 @@ void FirstGradeHartree(int Ne,int order,int *link_mat,double *h_mat,struct Eleme
                         }
                 }
         }
-        printf("POT INTEGRAL = %lf\n",h_mat[0]);
         free(eMatHV);
 }
 
@@ -39,7 +38,8 @@ void AssambleHartreePot(int Ne,int order,int *link_mat,double *vhij,struct Eleme
 	int nodes = Ne*order + 1;
 	double *h_mat = (double *)malloc(sizeof(double)*nodes*nodes);
 	FillZeroMat(h_mat,nodes,nodes);
-	switch(order)
+	GetHartreeMatrix(Ne,order,link_mat,h_mat,e,v);
+	/*switch(order)
 	{
 		case 1: FirstGradeHartree(Ne,order,link_mat,h_mat,e,v);
 			break;
@@ -47,7 +47,7 @@ void AssambleHartreePot(int Ne,int order,int *link_mat,double *vhij,struct Eleme
 			break;
 		case 3: //SecondGradeHartree(Ne,order,link_mat,h_mat,e,v);
 			break;
-	}
+	}*/
 
 	h_mat[0] = 1.0000;
         h_mat[1] = 0.0000;

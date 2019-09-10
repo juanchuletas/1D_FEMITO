@@ -3,7 +3,7 @@
 extern void MatrixProduct(double *A,double *B,double *C,int N, int M, int P);
 extern void ScalarXMatrix(double coeff,double *mat_A,double *mat_Res,int N,int M);
 extern void dgesv_( int* n, int* nrhs, double* a, int* lda, int* ipiv, double* b, int* ldb, int* info );
-double *PoissonSolver(double *uij,double *lij,double *wfn,int Ne,int order)
+double *PoissonSolver(double *uij,double *lij,double *wfn,int Ne,int order,int sign)
 {
 	int nodes = Ne*order +1;
 	int fembasis_poisson = nodes-1;
@@ -20,26 +20,33 @@ double *PoissonSolver(double *uij,double *lij,double *wfn,int Ne,int order)
 	
 
 	double *hartree_vec = (double *)malloc(sizeof(double)*nodes);
-	double *right_vec = (double *)malloc(sizeof(double)*fembasis_poisson);
+	double *right_vec = (double *)malloc(sizeof(double)*fembasis);
+	double *dummy = (double *)malloc(sizeof(double)*fembasis_poisson);
 	double *aux_vec = (double *)malloc(sizeof(double)*fembasis_poisson);
-	double *rho = (double *)malloc(sizeof(double)*fembasis_poisson);
-
-	rho[0] = 0.0;
-	for(int i=1; i<=fembasis; i++)
+	double *rho = (double *)malloc(sizeof(double)*fembasis);
+	dummy[0] = 0.f;
+	//rho[0] = 0.f;
+	double coeffwfn;
+	for(int i=0; i<fembasis; i++)
 	{
 		rho[i] = 0.0;
 		for(int orb=0; orb<Norb; orb++)
 		{
-			rho[i] += wfn[(i-1) + orb*fembasis]*wfn[(i-1) + orb*fembasis];
+			coeffwfn = wfn[i + orb*fembasis]*sign;
+			rho[i] += 2.0*(coeffwfn*coeffwfn);
 		}
-		rho[i] = 2.0*rho[i];
+		printf("Rho[%d] = %lf\n",i,rho[i]);
 
 	}
 
-	MatrixProduct(uij,rho,right_vec,fembasis_poisson,fembasis_poisson,NRHS);
-	ScalarXMatrix(4.0*PI,right_vec,aux_vec,fembasis_poisson,NRHS);
-
-
+	MatrixProduct(uij,rho,right_vec,fembasis,fembasis,NRHS);
+	//printf("Dummy[%d] = %lf\n",0,dummy[0]);
+	for(int i=0; i<fembasis; i++)
+	{
+		dummy[i+1] = right_vec[i];
+		//printf("Dummy[%d] = %lf\n",i+1,dummy[i+1]);
+	}
+	ScalarXMatrix(2.0,dummy,aux_vec,fembasis_poisson,NRHS);
 	dgesv_(&N,&NRHS,lij,&LDA,ipiv,aux_vec,&LDB,&info);
 
 	if( info > 0 )
@@ -53,15 +60,19 @@ double *PoissonSolver(double *uij,double *lij,double *wfn,int Ne,int order)
 	for(int i=0; i<fembasis_poisson; i++)
 	{
 		hartree_vec[i] = aux_vec[i];
+		printf("HartreePot[%d] = %lf\n",i,hartree_vec[i]);
 
 	}
-	hartree_vec[nodes-1] = 0.0;
+	hartree_vec[nodes-1] = 0.f;
+	printf("HartreePot[%d] = %lf\n",nodes-1,hartree_vec[nodes-1]);
 
 
 
 	return hartree_vec;
 	
 
-
+	free(right_vec);
+	free(rho);
+	free(aux_vec);
 
 }
