@@ -3,6 +3,7 @@
 #include <math.h>
 #include "data_structures.h"
 #include "wfn_operations.h"
+extern double *ComputeDensityR(double *wfn,struct Element *e,struct Vertex *n,int Ne, int order, int atomicN,int sign);
 extern void FillZeroMat(double *mat,int M,int N);
 extern double *PoissonSolver(double *uij,double *lij,double *wfn,int Ne,int order,int phase);
 extern void AssambleHartreePot(int Ne,int order,int *link_mat,double *vhij,struct Element *e,double *v);
@@ -22,10 +23,9 @@ void PerformSCF(double *hij,double *sij,double *kij,double *vij,double *uij,doub
 	int r_nodes = nodes-2;
 	int K=r_nodes;
 	int orb=0;
-	
 	double *f_mat = (double *)malloc(sizeof(double)*(K*K));
 	double *hartree_vec = (double *)malloc(sizeof(double)*(nodes));
-	double *dens_mat = (double *)malloc(sizeof(double)*(K*K));
+	double *rho = (double *)malloc(sizeof(double)*(nodes));
 	double *vhij = (double *)malloc(sizeof(double)*(K*K));
 
 	//   H_ij = K_ij + VN_ij + VEE_ij
@@ -47,8 +47,13 @@ void PerformSCF(double *hij,double *sij,double *kij,double *vij,double *uij,doub
         printf("Orbital[%d] energy = %lf    Step: %d\n",0,0.5*orbE_new,count);
         NormWfn(wfn,link_mat,e,order,Ne);
         GetWfnPhase(r_nodes,orb,&phase,wfn);
-	//ComputeDensityMatrix(dens_mat,wfn,Ne,order,2);
-        hartree_vec = PoissonSolver(sij,lij,wfn,Ne,order,phase);
+	rho = ComputeDensityR(wfn,e,e->n,Ne,order,2,phase);
+	for(int i=0; i<nodes; i++)
+	{
+		printf("RHO[%d] = %lf\n",i,rho[i]);
+	}
+        hartree_vec = PoissonSolver(uij,lij,rho,Ne,order,phase);
+
 	AssambleHartreePot(Ne,order,link_mat,vhij,e,hartree_vec);
 	do
 	{
@@ -58,20 +63,25 @@ void PerformSCF(double *hij,double *sij,double *kij,double *vij,double *uij,doub
 			f_mat[i] = hij[i] + vhij[i];
 		}
 		diag(K,f_mat,sij,vec_ei,wfn);
-        	//printf("Orbital[%d] energy = %lf    Step: %d\n",0,0.5*vec_ei[0],count);
+        	printf("Orbital[%d] energy = %lf    Step: %d\n",0,0.5*vec_ei[0],count);
         	NormWfn(wfn,link_mat,e,order,Ne);
         	GetWfnPhase(r_nodes,orb,&phase,wfn);
-        	hartree_vec = PoissonSolver(sij,lij,wfn,Ne,order,phase);
+		rho = ComputeDensityR(wfn,e,e->n,Ne,order,2,phase);
+		for(int i=0; i<nodes; i++)
+		{
+			printf("RHO[%d] = %lf\n",i,rho[i]);
+		}
+        	hartree_vec = PoissonSolver(uij,lij,rho,Ne,order,phase);
 		AssambleHartreePot(Ne,order,link_mat,vhij,e,hartree_vec);
 		count++;
 
-	}while(count<20);
+	}while(count<2);
 	//ComputeDensityMatrix(dens_mat,wfn,Ne,order,2);
 
         printf("****************************************************************************\n");
 
-	free(f_mat);
-	free(dens_mat);
-	free(vhij);
+	//free(f_mat);
+	free(rho);
+//	free(vhij);
 
 }
