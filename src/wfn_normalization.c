@@ -22,52 +22,38 @@ double FirstGradeIntegration(int ei,int order,double *eMatS,int *link_mat,double
 	return value;
 
 }
-double SecondGradeIntegration(int ei,int order,int *link_mat,double alpha,double *cf)
+double SecondGradeIntegration(int ei,int order,double *eMatS,int *link_mat,double alpha,double *cf)
 {
         int p = order + 1;
         double phi[p];
         for(int i=0; i<p; i++)
                 phi[i] = cf[link_mat[p*ei+i]];
         double value=0.0,v[p];
-        double *eMatS = (double *)malloc(sizeof(double)*(p*p));
-        double *eMatV = (double *)malloc(sizeof(double)*(p*p));
-        double *eMatK = (double *)malloc(sizeof(double)*(p*p));
-        SecondGradeElementalMatrices(ei,order,alpha,link_mat,eMatS,eMatK,eMatV,v);
         for(int mu=0; mu<p; mu++)
         {
                 for(int nu=0; nu<p; nu++)
                 {
-                        value = value + phi[mu]*phi[nu]*eMatS[p*mu+nu];
+                        value = value + phi[mu]*phi[nu]*(alpha*eMatS[p*mu+nu]);
                 }
         }
-        free(eMatS);
-        free(eMatV);
-        free(eMatK);
 
         return value;
 
 }
-double ThirdGradeIntegration(int ei,int order,int *link_mat,double alpha,double *cf)
+double ThirdGradeIntegration(int ei,int order,double *eMatS,int *link_mat,double alpha,double *cf)
 {
         int p = order + 1;
         double phi[p];
         for(int i=0; i<p; i++)
                 phi[i] = cf[link_mat[p*ei+i]];
         double value=0.0,v[p];
-        double *eMatS = (double *)malloc(sizeof(double)*(p*p));
-        double *eMatV = (double *)malloc(sizeof(double)*(p*p));
-        double *eMatK = (double *)malloc(sizeof(double)*(p*p));
-        ThirdGradeElementalMatrices(ei,order,alpha,link_mat,eMatS,eMatK,eMatV,v);
         for(int mu=0; mu<p; mu++)
         {
                 for(int nu=0; nu<p; nu++)
                 {
-                        value = value + phi[mu]*phi[nu]*eMatS[p*mu+nu];
+                        value = value + phi[mu]*phi[nu]*(alpha*eMatS[p*mu+nu]);
                 }
         }
-        free(eMatS);
-        free(eMatV);
-        free(eMatK);
 
         return value;
 
@@ -115,7 +101,7 @@ void NormWfn(double *wfn_vec,int *link_mat,struct Element *e,int order,int Ne)
                                 for(int ei=0; ei<Ne; ei++)
                                 {
                                         ai = 0.5*e[ei].h;
-                                        Norm = Norm + SecondGradeIntegration(ei,order,link_mat,ai,cf);
+                                        Norm = Norm + SecondGradeIntegration(ei,order,eMatS,link_mat,ai,cf);
                                 }
                                 Norm = 1.0/sqrt(Norm);
                                 for(int i=0; i<r_nodes; i++)
@@ -135,7 +121,8 @@ void NormWfn(double *wfn_vec,int *link_mat,struct Element *e,int order,int Ne)
                                 for(int ei=0; ei<Ne; ei++)
                                 {
                                         ai = 0.5*e[ei].h;
-                                        Norm = Norm + ThirdGradeIntegration(ei,order,link_mat,ai,cf);
+                                        Norm = Norm + ThirdGradeIntegration(ei,order,eMatS,link_mat,ai,cf);
+					printf("Orb[%d] = %lf\n",orb,Norm);
                                 }
                                 Norm = 1.0/sqrt(Norm);
                                 for(int i=0; i<r_nodes; i++)
