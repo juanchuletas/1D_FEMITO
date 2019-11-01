@@ -41,19 +41,20 @@ double *PoissonSolver(double *lij,double *rho,int *link_mat,struct Element *e,in
 	int fembasis_poisson = nodes-1;
 	int fembasis = nodes-2;
 	int NRHS = 1;
-	int N=fembasis_poisson;
+	int N=fembasis;
 	int LDA=N;
 	int LDB=N;
 	int ipiv[N];
 	int Norb=1;
 	int info;
 	const double PI = 3.14159265358979323846;
-	const double coeff = 1.0/8.0*PI;
+	const double coeff = 4.0*PI;
 
 	
         double newrho[nodes];
         double f[nodes];
         double fnew[fembasis];
+        double f_vec[fembasis];
 
 
 	for(int i=0; i<fembasis; i++)
@@ -61,22 +62,22 @@ double *PoissonSolver(double *lij,double *rho,int *link_mat,struct Element *e,in
 		newrho[i+1] = rho[i];
 	}
 	newrho[0] = 0.f;
-	newrho[nodes] = 0.f;
+	newrho[nodes-1] = 0.f;
 
 	LeftHandSide(f,newrho,link_mat,e,Ne,order);
-	for(int i=0; i<fem_basis; i++)
+	for(int i=0; i<fembasis; i++)
 	{
-		printf("f[%d] = %lf\n",i,f[i]);
+		fnew[i] = f[i+1];
+		printf("f[%d] = %lf\n",i,fnew[i]);
 	}
 
-
-
-	double *hartree_vec = (double *)malloc(sizeof(double)*nodes);
-	/*double *right_vec = (double *)malloc(sizeof(double)*fembasis_poisson);
-	double *aux_mat = (double *)malloc(sizeof(double)*fembasis_poisson*fembasis_poisson);
-	MatrixProduct(uij,rho,right_vec,fembasis_poisson,fembasis_poisson,NRHS);*/
-	ScalarXMatrix(2.0,lij,aux_mat,fembasis_poisson,fembasis_poisson);
-	dgesv_(&N,&NRHS,aux_mat,&LDA,ipiv,right_vec,&LDB,&info);
+	double *hartree_vec = (double *)malloc(sizeof(double)*fembasis);
+	/*double *right_vec = (double *)malloc(sizeof(double)*fembasis_poisson);*/
+	double *aux_mat = (double *)malloc(sizeof(double)*fembasis*fembasis);
+	//MatrixProduct(uij,rho,right_vec,fembasis_poisson,fembasis_poisson,NRHS);
+	ScalarXMatrix(2.0,lij,aux_mat,fembasis,fembasis);
+	//ScalarXMatrix(coeff,fnew,f_vec,fembasis,1);
+	dgesv_(&N,&NRHS,aux_mat,&LDA,ipiv,fnew,&LDB,&info);
 
 	if( info > 0 )
         {
@@ -86,13 +87,12 @@ double *PoissonSolver(double *lij,double *rho,int *link_mat,struct Element *e,in
         exit(1);
         }
 
-	for(int i=0; i<fembasis_poisson; i++)
+	for(int i=0; i<fembasis; i++)
 	{
-		hartree_vec[i] = 0.0;
-		//printf("HartreePot[%d] = %lf\n",i,hartree_vec[i]);
+		hartree_vec[i] = fnew[i];
+		printf("HartreePot[%d] = %lf\n",i,hartree_vec[i]);
 
 	}
-	hartree_vec[nodes-1] = 0.f;
 	//printf("HartreePot[%d] = %lf\n",nodes-1,hartree_vec[nodes-1]);
 
 
