@@ -50,15 +50,12 @@ void PerformSCF(double *hij,double *sij,double *kij,double *vij,double *uij,doub
 	rho = ComputeDensity(wfn,Ne,order,2);
 	printf("DENSITY:\n");
 	for(int i=0; i<r_nodes; i++)
-		printf("rho[%d] = %lf\n",i,rho[i]);
-	/*rho = ComputeDensityR(wfn,e,e->n,Ne,order,2,phase);
-	for(int i=0; i<nodes; i++)
 	{
 		printf("RHO[%d] = %lf\n",i,rho[i]);
-	}*/
+	}
         hartree_vec = PoissonSolver(kij,rho,link_mat,e,Ne,order,phase);
 	AssambleHartreePot(Ne,order,link_mat,vhij,e,hartree_vec);
-	do
+	/*do
 	{
 		//printf("ADDING THE HARTREE POTENTIAL MATRIX TO THE EIGENVALUE PROBLEM\n");
 		for(int i=0; i<K*K; i++)
@@ -70,15 +67,11 @@ void PerformSCF(double *hij,double *sij,double *kij,double *vij,double *uij,doub
         	NormWfn(wfn,link_mat,e,order,Ne);
         	GetWfnPhase(r_nodes,orb,&phase,wfn);
 	        rho = ComputeDensity(wfn,Ne,order,2);
-		for(int i=0; i<r_nodes; i++)
-		{
-			printf("RHO[%d] = %lf\n",i,rho[i]);
-		}
         	hartree_vec = PoissonSolver(kij,rho,link_mat,e,Ne,order,phase);
 		AssambleHartreePot(Ne,order,link_mat,vhij,e,hartree_vec);
 		count++;
 
-	}while(count<10);
+	}while(count<1);*/
 	//ComputeDensityMatrix(dens_mat,wfn,Ne,order,2);
 
         printf("****************************************************************************\n");

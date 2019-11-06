@@ -18,14 +18,14 @@ void LeftHandSide(double *f,double *rho,int *link_mat,struct Element *e,int Ne,i
 
 	for(int ei=0; ei<Ne; ei++)
 	{
-		coeff = e[ei].h;
+		coeff = 0.5*e[ei].h;
 		for(int mu=0; mu<p; mu++)
 		{
-			f[ei+mu] = 0.0;
+			f[order*ei + mu] = 0.0;
 			for(int nu=0; nu<p; nu++)
 			{
 				int m = link_mat[p*ei+nu];
-				f[ei+mu] += coeff*rho[m]*eMatS[mu*p+nu];
+				f[order*ei + mu] += coeff*rho[m]*eMatS[mu*p+nu];
 			        //printf("f[%d] = %lf\n",ei+mu,f[ei+mu]);
 			}
 		}
@@ -48,7 +48,7 @@ double *PoissonSolver(double *lij,double *rho,int *link_mat,struct Element *e,in
 	int Norb=1;
 	int info;
 	const double PI = 3.14159265358979323846;
-	const double coeff = 4.0*PI;
+	const double coeff = 2.0*PI;
 
 	
         double newrho[nodes];
@@ -76,7 +76,7 @@ double *PoissonSolver(double *lij,double *rho,int *link_mat,struct Element *e,in
 	double *aux_mat = (double *)malloc(sizeof(double)*fembasis*fembasis);
 	//MatrixProduct(uij,rho,right_vec,fembasis_poisson,fembasis_poisson,NRHS);
 	ScalarXMatrix(2.0,lij,aux_mat,fembasis,fembasis);
-	//ScalarXMatrix(coeff,fnew,f_vec,fembasis,1);
+	ScalarXMatrix(coeff,fnew,f_vec,fembasis,1);
 	dgesv_(&N,&NRHS,aux_mat,&LDA,ipiv,fnew,&LDB,&info);
 
 	if( info > 0 )

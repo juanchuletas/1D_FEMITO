@@ -90,14 +90,14 @@ void LagrangeInterpolation(int Ne,double r0,double rN,char kindpot[180],char mes
 	AssambleGlobalMatrices(Ne,order,link_mat,sij,kij,vij,uij,lij,e,e->pot);
 	//----------------------------------------------------------------------
 	//----------------------------------------------------------------------
-	/*print_matrix("*** Overlap Matrix ***",K,K,sij);
-	print_matrix("*** Kinect Matrix ***",K,K,kij);
-        print_matrix("*** Potential Matrix ***",K,K,vij);
+	//print_matrix("*** Overlap Matrix ***",K,K,sij);
+	//print_matrix("*** Kinect Matrix ***",K,K,kij);
+        /*print_matrix("*** Potential Matrix ***",K,K,vij);
         print_matrix("*** U Poisson Matrix ***",fembasis_poisson,fembasis_poisson,uij);
         print_matrix("*** L Poisson Matrix ***",fembasis_poisson,fembasis_poisson,lij);*/
 	PrintPotentialData(order,Ne,e,e->n,e->pot);
         PerformSCF(hij,sij,kij,vij,uij,lij,ci,ei,link_mat,e,Ne,order);
-	//EnergyResults(ei,10);
+	EnergyResults(ei,10);
 	//print_matrix("Hartree-Potential",K,K,mat_vh);
 	PrintWaveFunction(Ne,order,e,e->n,ci,ei);
 

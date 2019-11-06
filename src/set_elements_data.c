@@ -15,6 +15,7 @@ void SetElements(struct Element *e,struct Vertex *n,int Ne,double *x,int order)
 		       		e[i].n[0].x = x[i];
 		       		e[i].n[1].x = x[i+1];
 	       			e[i].h = e[i].n[1].x - e[i].n[0].x;
+				//printf("e[%d] = %lf\n",i,e[i].h);
         		}
 	                break;
 		case 2:

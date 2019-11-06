@@ -122,7 +122,7 @@ void NormWfn(double *wfn_vec,int *link_mat,struct Element *e,int order,int Ne)
                                 {
                                         ai = 0.5*e[ei].h;
                                         Norm = Norm + ThirdGradeIntegration(ei,order,eMatS,link_mat,ai,cf);
-					printf("Orb[%d] = %lf\n",orb,Norm);
+					//printf("Orb[%d] = %lf\n",orb,Norm);
                                 }
                                 Norm = 1.0/sqrt(Norm);
                                 for(int i=0; i<r_nodes; i++)
