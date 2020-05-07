@@ -48,7 +48,7 @@ double *PoissonSolver(double *lij,double *rho,int *link_mat,struct Element *e,in
 	int Norb=1;
 	int info;
 	const double PI = 3.14159265358979323846;
-	const double coeff = 2.0*PI;
+	const double coeff = 4.0*PI;
 
 	
         double newrho[nodes];
@@ -68,7 +68,7 @@ double *PoissonSolver(double *lij,double *rho,int *link_mat,struct Element *e,in
 	for(int i=0; i<fembasis; i++)
 	{
 		fnew[i] = f[i+1];
-		printf("f[%d] = %lf\n",i,fnew[i]);
+		//printf("f[%d] = %lf\n",i,fnew[i]);
 	}
 
 	double *hartree_vec = (double *)malloc(sizeof(double)*fembasis);
@@ -77,7 +77,7 @@ double *PoissonSolver(double *lij,double *rho,int *link_mat,struct Element *e,in
 	//MatrixProduct(uij,rho,right_vec,fembasis_poisson,fembasis_poisson,NRHS);
 	ScalarXMatrix(2.0,lij,aux_mat,fembasis,fembasis);
 	ScalarXMatrix(coeff,fnew,f_vec,fembasis,1);
-	dgesv_(&N,&NRHS,aux_mat,&LDA,ipiv,fnew,&LDB,&info);
+	dgesv_(&N,&NRHS,aux_mat,&LDA,ipiv,f_vec,&LDB,&info);
 
 	if( info > 0 )
         {
@@ -89,7 +89,7 @@ double *PoissonSolver(double *lij,double *rho,int *link_mat,struct Element *e,in
 
 	for(int i=0; i<fembasis; i++)
 	{
-		hartree_vec[i] = fnew[i];
+		hartree_vec[i] = f_vec[i];
 		printf("HartreePot[%d] = %lf\n",i,hartree_vec[i]);
 
 	}

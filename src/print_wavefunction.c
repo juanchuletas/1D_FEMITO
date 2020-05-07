@@ -25,7 +25,7 @@ void PrintWaveFunction(int Ne,int order,struct Element *e,struct Vertex *n,doubl
 	for(int i=0; i<r_nodes; i++)
 	{
 		cfwfn = wfn[i + r_nodes*orb]*phase;
-		coefrho = 2.0*cfwfn*cfwfn;
+		coefrho = cfwfn*cfwfn;
 		//cfwfn += 0.5*vecE[orb];
 		//coefrho += 0.5*vecE[orb];
 		fprintf(wfn_data,"%d\t% lf\t% lf\n",i,cfwfn,coefrho);

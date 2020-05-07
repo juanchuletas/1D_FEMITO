@@ -13,6 +13,7 @@ extern void GetHartreePotential(double *mat_vh,double *sij,double *kij,double *w
 extern void diag (int n, double *h, double *s, double *e, double *v);
 extern void GetHmatrix(double *h,double *v,double *k,int M,int N);
 extern double *ComputeDensity(double *wfn,int Ne, int order, int atomicN);
+extern double IntegrateDens(double *wfn,struct Element *e,int *link_mat,int Ne, int order);
 void PerformSCF(double *hij,double *sij,double *kij,double *vij,double *uij,double *lij,double *wfn,double *vec_ei,int *link_mat,struct Element *e,int Ne,int order)
 {
         printf("****************************************************************************\n");
@@ -32,6 +33,7 @@ void PerformSCF(double *hij,double *sij,double *kij,double *vij,double *uij,doub
 	//FIRST APPROACH TO H_ij MATRIX: 
 	//   Hij = K_ij + VN_ij
 	FillZeroMat(hij,r_nodes,r_nodes);
+	FillZeroMat(f_mat,r_nodes,r_nodes);
 	GetHmatrix(hij,vij,kij,r_nodes,r_nodes);
 	int count=0;
 	int phase=1;
@@ -44,40 +46,40 @@ void PerformSCF(double *hij,double *sij,double *kij,double *vij,double *uij,doub
 
 	diag(K,hij,sij,vec_ei,wfn);
         orbE_new = vec_ei[0];
-        printf("Orbital[%d] energy = %lf    Step: %d\n",0,0.5*orbE_new,count);
+        printf("Orbital[%d] energy = %lf    Step: %d\n",0,orbE_new,count);
         NormWfn(wfn,link_mat,e,order,Ne);
         GetWfnPhase(r_nodes,orb,&phase,wfn);
+	double qtot = IntegrateDens(wfn,e,link_mat,Ne,order);
+
+	printf("TOTAL CHARGE = %lf\n",qtot);
+
 	rho = ComputeDensity(wfn,Ne,order,2);
-	printf("DENSITY:\n");
-	for(int i=0; i<r_nodes; i++)
+	/*for(int i=0; i<r_nodes; i++)
 	{
 		printf("RHO[%d] = %lf\n",i,rho[i]);
-	}
+	}*/
         hartree_vec = PoissonSolver(kij,rho,link_mat,e,Ne,order,phase);
 	AssambleHartreePot(Ne,order,link_mat,vhij,e,hartree_vec);
 	/*do
 	{
-		//printf("ADDING THE HARTREE POTENTIAL MATRIX TO THE EIGENVALUE PROBLEM\n");
-		for(int i=0; i<K*K; i++)
-		{
-			f_mat[i] = hij[i] + vhij[i];
-		}
+	        GetHmatrix(f_mat,hij,vhij,r_nodes,r_nodes);
 		diag(K,f_mat,sij,vec_ei,wfn);
-        	printf("Orbital[%d] energy = %lf    Step: %d\n",0,0.5*vec_ei[0],count);
-        	NormWfn(wfn,link_mat,e,order,Ne);
-        	GetWfnPhase(r_nodes,orb,&phase,wfn);
+        	printf("Orbital[%d] energy = %lf    Step: %d\n",0,vec_ei[0],count+1);
+        	//NormWfn(wfn,link_mat,e,order,Ne);
+        	//GetWfnPhase(r_nodes,orb,&phase,wfn);
 	        rho = ComputeDensity(wfn,Ne,order,2);
         	hartree_vec = PoissonSolver(kij,rho,link_mat,e,Ne,order,phase);
 		AssambleHartreePot(Ne,order,link_mat,vhij,e,hartree_vec);
 		count++;
 
-	}while(count<1);*/
+	}while(count<100);
 	//ComputeDensityMatrix(dens_mat,wfn,Ne,order,2);
 
         printf("****************************************************************************\n");
-
+*/
 	free(f_mat);
 	free(rho);
 	free(vhij);
+	free(hartree_vec);
 
 }
