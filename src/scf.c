@@ -58,8 +58,8 @@ void PerformSCF(double *hij,double *sij,double *kij,double *vij,double *uij,doub
 	{
 		printf("RHO[%d] = %lf\n",i,rho[i]);
 	}*/
-        hartree_vec = PoissonSolver(kij,rho,link_mat,e,Ne,order,phase);
-	AssambleHartreePot(Ne,order,link_mat,vhij,e,hartree_vec);
+        //hartree_vec = PoissonSolver(kij,rho,link_mat,e,Ne,order,phase);
+	//AssambleHartreePot(Ne,order,link_mat,vhij,e,hartree_vec);
 	/*do
 	{
 	        GetHmatrix(f_mat,hij,vhij,r_nodes,r_nodes);
